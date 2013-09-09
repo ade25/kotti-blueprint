@@ -1,7 +1,7 @@
 [filter:paste_prefix]
 use = egg:PasteDeploy#prefix
 
-[app:briefkasten]
+[app:${config:app-title}]
 use = ${config:app-title}
 filter-with = paste_prefix
 pyramid.reload_templates = ${config:debug}

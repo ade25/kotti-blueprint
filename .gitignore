@@ -16,3 +16,4 @@ __pycache__
 /lib/
 /var/
 /fabfile.py
+src/ade25.fabfiles

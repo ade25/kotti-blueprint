@@ -48,7 +48,7 @@
 
           <div tal:replace="api.render_template('kotti:templates/messages.pt')" />
 
-          <div class="inner-content">
+          <div class="inner-content" id="app-content">
             <div metal:define-slot="content">
               <h1>${context.title}</h1>
             </div>

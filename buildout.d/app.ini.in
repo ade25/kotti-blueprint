@@ -5,7 +5,7 @@
 use = egg:kotti
 
 # kotti.site_title: your site's title
-kotti.site_title = kotti_blogtool
+kotti.site_title = ${config:app-title}
 
 
 # kotti.secret: defines the initial password of the 'admin' user
@@ -62,13 +62,28 @@ pyramid.includes =
 use = egg:fanstatic#fanstatic
 
 
-[pipeline:main]
+[filter:theme]
+use = egg:diazo
+rules = ${config:fs_theme_path}/rules.xml
+debug = true
+
+
+[pipeline:default]
 pipeline =
     fanstatic
+    theme
     kotti
-
 
 [server:main]
 use = egg:waitress#main
 host = 127.0.0.1
-port = 5000
+port = 5001
+
+[composite:main]
+use = egg:Paste#urlmap
+/assets = assets
+/ = default
+
+[app:assets]
+use = egg:Paste#static
+document_root = ${config:fs_theme_path}/assets

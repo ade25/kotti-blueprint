@@ -1,6 +1,6 @@
 <div xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
      xmlns:tal="http://xml.zope.org/namespaces/tal" 
-    class="navbar navbar-default" role="navigation">
+    class="navbar navbar-default app-navbar" role="navigation">
   <div class="navbar-header">
     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
       <span class="sr-only">Toggle navigation</span>

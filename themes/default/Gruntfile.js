@@ -97,6 +97,12 @@ module.exports = function (grunt) {
                 cwd: 'bower_components/',
                 src: ['font-awesome/font/*'],
                 dest: 'assets/fonts/'
+            },
+            styles: {
+                expand: true,
+                flatten: true,
+                src: ['dist/css/*'],
+                dest: 'assets/css/'
             }
         },
         rev: {
@@ -125,6 +131,15 @@ module.exports = function (grunt) {
         },
         jekyll: {
             theme: {}
+        },
+
+        sed: {
+            'clean-css-link': {
+                path: 'dist/',
+                pattern: '../dist/css/styles.css',
+                replacement: '../assets/css/styles.css',
+                recursive: true
+            }
         },
 
         validation: {
@@ -165,6 +180,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-html-validation');
     grunt.loadNpmTasks('grunt-jekyll');
     grunt.loadNpmTasks('grunt-recess');
+    grunt.loadNpmTasks('grunt-sed');
     grunt.loadNpmTasks('grunt-rev');
     grunt.loadNpmTasks('browserstack-runner');
 
@@ -172,7 +188,6 @@ module.exports = function (grunt) {
     grunt.registerTask('copy-templates', '', function () {
         grunt.file.copy('_site/index.html', 'dist/theme.html');
         grunt.file.copy('_site/signin/index.html', 'dist/signin.html');
-        grunt.file.copy('_site/blogcontent/index.html', 'dist/blog.html');
     });
 
     // Docs HTML validation task
@@ -196,7 +211,7 @@ module.exports = function (grunt) {
     grunt.registerTask('dist-cb', ['rev']);
 
     // Template distribution task.
-    grunt.registerTask('dist-templates', ['jekyll:theme', 'copy-templates']);
+    grunt.registerTask('dist-templates', ['jekyll:theme', 'copy-templates', 'sed']);
 
     // Full distribution task.
     grunt.registerTask('dist', ['clean', 'dist-css', 'dist-js', 'dist-templates']);

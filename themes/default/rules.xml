@@ -20,24 +20,8 @@
 
         <theme href="dist/theme.html" />
 
-        <replace css:theme="title" css:content="title" />
-        <replace css:theme="base" css:content="base" />
-        <!-- Add meta tags -->
-        <drop theme="/html/head/meta" />
-        
-        <after content="/html/head/meta" theme-children="/html/head" />
-        <!-- Copy style, script and link tags in the order they appear in the content -->
-        <after
-            content="/html/head/style | /html/head/script | /html/head/link"
-            theme-children="/html/head"
-            />
-
-        <drop theme="/html/head/style" />
-        <drop theme="/html/head/script" />
-        <drop theme="/html/head/link" />
-
-        <!-- Drop scripts from theme footer if present -->
-        <drop theme="/html/body/script" />
+        <before content="/html/head/*"
+            theme-children="/html/head" />
 
         <!-- Custom favicon implementation -->
         <!--<drop content="link[@type='image/x-icon']" />
@@ -51,14 +35,11 @@
         <copy attributes="id dir" css:content="body" css:theme="body" />
 
         <!-- CMSUI Editbar replacements -->
-        <drop css:theme="#toolbar"
-            css:if-content="#anon-personalbar" />
+        <drop css:theme="#app-toolbar"
+            css:if-not-content="#editor-bar" />
         <!--<replace css:theme-children="#editbar" css:content="#edit-bar" />-->
-        <replace css:theme="#toolbar"
-            css:content="#toolbar" />
-
-        <replace css:theme-children="#personal-tools" 
-            css:content-children="#portal-personaltools" />
+        <replace css:theme="#app-toolbar"
+            css:content="#editor-bar" />
 
         <!-- Logo (link target) -->
         <copy attributes="href" css:content="#portal-logo" css:theme="a.brand" />
@@ -68,8 +49,10 @@
             css:theme="#portal-searchbox" />-->
 
         <!-- Global navigation -->
-        <replace css:content="#portal-globalnav li"
-            css:theme-children="#main-nav" />
+        <replace css:content="#app-navbar-header"
+            css:theme="#app-navbar-header" />
+        <replace css:content-children="#app-navbar-content"
+            css:theme-children="#app-navbar-content" />
 
         <!-- Breadcrumbs -->
         <replace css:content-children='#portal-breadcrumbs'

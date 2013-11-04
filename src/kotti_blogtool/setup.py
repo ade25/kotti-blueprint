@@ -38,6 +38,9 @@ setup(
     zip_safe=False,
     install_requires=[
         'Kotti',
+        'kotti_settings>=0.1',
+        'js.jquery_infinite_ajax_scroll',
+        'python-dateutil',
     ],
     entry_points={
         'fanstatic.libraries': [

@@ -26,9 +26,9 @@
 
   <body class="view-${request.view_name or 'default'} ${api.body_css_class} logged-in">
     <nav tal:replace="api.render_template('kotti:templates/view/nav.pt')" />
-    <div metal:define-slot="editor-bar"
+    <!--<div metal:define-slot="editor-bar"
          tal:condition="request.user is not None"
-         tal:replace="api.render_template('kotti:templates/editor-bar.pt')" />
+         tal:replace="api.render_template('kotti:templates/editor-bar.pt')" />-->
 
     <div class="container">
       <div class="row">

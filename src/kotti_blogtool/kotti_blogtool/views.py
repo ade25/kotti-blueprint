@@ -4,21 +4,28 @@ from dateutil.tz import tzutc
 
 from colander import deferred
 from colander import SchemaNode
-from colander import String
 from colander import Range
 from colander import DateTime
 from colander import iso8601
 from deform.widget import DateTimeInputWidget
-from kotti.views.edit.content import ContentSchema
+
+from kotti import DBSession
+from kotti.security import has_permission
 from kotti.views.edit import DocumentSchema
 from kotti.views.form import AddFormView
 from kotti.views.form import EditFormView
+from kotti.views.util import template_api
+
+from kotti_settings.util import get_setting
+
+from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 from pyramid.view import view_defaults
 
-from kotti_blogtool import _
+from kotti_blogtool.batch import Batch
 from kotti_blogtool.resources import Blog
-from kotti_blogtool.fanstatic import kotti_blogtool
+from kotti_blogtool.resources import BlogEntry
+from kotti_blogtool import _
 
 
 @deferred
@@ -69,44 +76,89 @@ class BlogEntryEditForm(EditFormView):
     schema_factory = BlogEntrySchema
 
 
-@view_config(name=Blog.type_info.add_view,
-             permission='add',
-             renderer='kotti:templates/edit/node.pt')
-class BlogAddForm(AddFormView):
-
-    schema_factory = BlogSchema
-    add = Blog
-    item_type = _(u"Blog")
-
-
-@view_config(name='edit',
-             context=Blog,
-             permission='edit',
-             renderer='kotti:templates/edit/node.pt')
-class BlogEditForm(EditFormView):
-
-    schema_factory = BlogSchema
-
-
-@view_defaults(context=Blog, permission='view')
-class BlogView(object):
-    """View(s) for Blog"""
+@view_defaults(name='view', permission='view')
+class Views:
 
     def __init__(self, context, request):
-
         self.context = context
         self.request = request
 
-    @view_config(name='view',
-                 renderer='kotti_blogtool:templates/blog.pt')
-    def view(self):
+    @view_config(context=Blog,
+                 renderer='kotti_blog:templates/blog-view.pt')
+    def view_blog(self):
+        macros = get_renderer('templates/macros.pt').implementation()
+        query = DBSession.query(BlogEntry)
+        query = query.filter(BlogEntry.parent_id == self.context.id)
+        query = query.order_by(BlogEntry.date.desc())
+        items = query.all()
+        items = [item for item in items if has_permission('view', item, self.request)]
+        page = self.request.params.get('page', 1)
+        use_pagination = get_setting('use_pagination')
+        if use_pagination:
+            items = Batch.fromPagenumber(items,
+                                         pagesize=get_setting('pagesize'),
+                                         pagenumber=int(page))
+        return {
+            'api': template_api(self.context, self.request),
+            'macros': macros,
+            'items': items,
+            'use_pagination': use_pagination,
+            'link_headline': get_setting('link_headline'),
+        }
 
-        kotti_blogtool.need()
-
+    @view_config(context=BlogEntry,
+                 renderer='kotti_blog:templates/blogentry-view.pt')
+    def view_blogentry(self):
         return {}
 
-    @view_config(name='alternative-view',
-                 renderer='kotti_blogtool:templates/blog-alternative.pt')
-    def alternative_view(self):
 
-        return {}
+@view_config(name='kotti_blog_use_auto_pagination',
+             permission='edit',
+             renderer='json')
+def use_auto_pagination(context, request):
+    return {'use_auto_pagination': get_setting('use_auto_pagination')}
+
+
+def includeme_edit(config):
+
+    config.add_view(
+        BlogAddForm,
+        name=Blog.type_info.add_view,
+        permission='add',
+        renderer='kotti:templates/edit/node.pt',
+    )
+
+    config.add_view(
+        BlogEditForm,
+        context=Blog,
+        name='edit',
+        permission='edit',
+        renderer='kotti:templates/edit/node.pt',
+    )
+
+    config.add_view(
+        BlogEntryAddForm,
+        name=BlogEntry.type_info.add_view,
+        permission='add',
+        renderer='kotti:templates/edit/node.pt',
+    )
+
+    config.add_view(
+        BlogEntryEditForm,
+        context=BlogEntry,
+        name='edit',
+        permission='edit',
+        renderer='kotti:templates/edit/node.pt',
+    )
+
+
+def includeme(config):
+    settings = config.get_settings()
+    if 'kotti_blog.asset_overrides' in settings:
+        for override in [a.strip()
+                         for a in settings['kotti_blog.asset_overrides'].split()
+                         if a.strip()]:
+            config.override_asset(to_override='kotti_blog', override_with=override)
+    includeme_edit(config)
+    config.add_static_view('static-kotti_blog', 'kotti_blog:static')
+    config.scan(__name__)

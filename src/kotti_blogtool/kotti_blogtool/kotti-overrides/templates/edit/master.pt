@@ -3,32 +3,31 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       tal:define="page_slots api.slots;
-                  dummy api.edit_needed"
+                  dummy api.view_needed"
       metal:define-macro="main">
+
   <head>
     <meta charset="utf-8" />
     <title metal:define-slot="page-title">${api.page_title | api.site_title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="${context.description | ''}" />
 
-    <!-- Fav icons -->
-    <link rel="shortcut icon" href="${request.static_url('kotti:static/favicon.ico')}" />
-
     <more tal:omit-tag="" metal:define-slot="head-more"></more>
 
-    <!-- 'edit_inhead' slots: support third party injection of things that
+    <!-- 'inhead' slots: support third party injection of things that
          go into the head -->
-    <tal:slots tal:define="snippets page_slots.edit_inhead"
+    <tal:slots tal:define="snippets page_slots.inhead"
                tal:condition="snippets"
                tal:repeat="snippet snippets"
                tal:replace="structure snippet" />
   </head>
 
-  <body class="view-${request.view_name or 'default'} ${api.body_css_class} logged-in">
+  <body class="${request.user is not None and 'logged-in'}
+               view-${request.view_name or 'default'}
+               ${api.body_css_class}">
     <nav tal:replace="api.render_template('kotti:templates/view/nav.pt')" />
-    <!--<div metal:define-slot="editor-bar"
-         tal:condition="request.user is not None"
-         tal:replace="api.render_template('kotti:templates/editor-bar.pt')" />-->
+    <div tal:condition="request.user is not None"
+         tal:replace="api.render_template('kotti:templates/editor-bar.pt')" />
 
     <div class="container">
       <div class="row">

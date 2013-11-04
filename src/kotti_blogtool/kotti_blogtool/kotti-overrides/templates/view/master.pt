@@ -31,9 +31,6 @@
 
     <div class="container">
       <div tal:replace="api.render_template('kotti:templates/edit/breadcrumbs.pt')" />
-      <div class="jumbotron">
-            <h1>Text overrides</h1>
-        </div>
       <div class="row">
         <div class="col-xs-12 col-md-3 left-column"
              tal:condition="page_slots.left"

@@ -154,11 +154,11 @@ def includeme_edit(config):
 
 def includeme(config):
     settings = config.get_settings()
-    if 'kotti_blog.asset_overrides' in settings:
+    if 'kotti_blogtool.asset_overrides' in settings:
         for override in [a.strip()
-                         for a in settings['kotti_blog.asset_overrides'].split()
+                         for a in settings['kotti_blogtool.asset_overrides'].split()
                          if a.strip()]:
             config.override_asset(to_override='kotti_blog', override_with=override)
     includeme_edit(config)
-    config.add_static_view('static-kotti_blog', 'kotti_blog:static')
+    config.add_static_view('static-kotti_blogtool', 'kotti_blogtool:static')
     config.scan(__name__)
